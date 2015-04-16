@@ -19,12 +19,13 @@ namespace MixLibAuthentication.Authentication
         private readonly string _body;
         private readonly string _host;
         private readonly string _userId;
-        private readonly string _protoVersion;
         private readonly DateTime? _timeStamp;
         private const string DefaultSignAlgorithm = "SHA1";
         private const string DefaultProtoVersion = "1.0";
         private readonly string[] _supportedAlgorithms = { DefaultSignAlgorithm };
         private readonly string[] _supportedVersions = { DefaultProtoVersion, "1.1" };
+
+        public string ProtoVersion { get; set; }
 
         public string CanonicalTime => _timeStamp.GetValueOrDefault(DateTime.UtcNow).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
 
@@ -57,7 +58,7 @@ namespace MixLibAuthentication.Authentication
             _body = body;
             _host = host;
             _userId = userId;
-            _protoVersion = protoVersion;
+            ProtoVersion = protoVersion;
             _timeStamp = timeStamp;
         }
 
@@ -113,7 +114,7 @@ namespace MixLibAuthentication.Authentication
 
         public IDictionary<string, string> Sign(string privateKey, string signAlgorithm)
         {
-            return Sign(privateKey, signAlgorithm, _protoVersion);
+            return Sign(privateKey, signAlgorithm, ProtoVersion);
         }
 
         public IDictionary<string, string> Sign(string privateKey)
@@ -155,7 +156,7 @@ namespace MixLibAuthentication.Authentication
             if (signVersion != null && !_supportedVersions.Contains(signVersion))
                 throw new ArgumentOutOfRangeException(signVersion, "Unsupported version");
 
-            var canonicalXOpsUserId = CanonicalizeUserId(_userId, signVersion ?? _protoVersion);
+            var canonicalXOpsUserId = CanonicalizeUserId(_userId, signVersion ?? ProtoVersion);
             
             return
                 $"Method:{_method.ToString().ToUpper()}\nHashed Path:{Digester.HashString(CanonicalPath)}\nX-Ops-Content-Hash:{HashedBody}\nX-Ops-Timestamp:{CanonicalTime}\nX-Ops-UserId:{canonicalXOpsUserId}";

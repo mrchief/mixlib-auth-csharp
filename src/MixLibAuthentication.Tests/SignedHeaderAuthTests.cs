@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Security.Cryptography;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MixLibAuthentication.Authentication;
 
@@ -23,6 +22,17 @@ namespace MixLibAuthentication.Tests
         string _v11CanonicalRequest;
         private SignedHeaderAuth _v10Request;
         private SignedHeaderAuth _v11Request;
+
+        private readonly string _publicKeyData = "-----BEGIN PUBLIC KEY-----"
+                                        + "\n" + "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0ueqo76MXuP6XqZBILFz"
+                                        + "\n" + "iH/9AI7C6PaN5W0dSvkr9yInyGHSz/IR1+4tqvP2qlfKVKI4CP6BFH251Ft9qMUB"
+                                        + "\n" + "uAsnlAVQ1z0exDtIFFOyQCdR7iXmjBIWMSS4buBwRQXwDK7id1OxtU23qVJv+xwE"
+                                        + "\n" + "V0IzaaSJmaGLIbvRBD+qatfUuQJBMU/04DdJIwvLtZBYdC2219m5dUBQaa4bimL+"
+                                        + "\n" + "YN9EcsDzD9h9UxQo5ReK7b3cNMzJBKJWLzFBcJuePMzAnLFktr/RufX4wpXe6XJx"
+                                        + "\n" + "oVPaHo72GorLkwnQ0HYMTY8rehT4mDi1FI969LHCFFaFHSAaRnwdXaQkJmSfcxzC"
+                                        + "\n" + "YQIDAQAB"
+                                        + "\n" + "-----END PUBLIC KEY-----";
+
 
         private readonly string _privateKeyData = "-----BEGIN RSA PRIVATE KEY-----"
                                         + "\n" + "MIIEpAIBAAKCAQEA0ueqo76MXuP6XqZBILFziH/9AI7C6PaN5W0dSvkr9yInyGHS"
@@ -99,9 +109,8 @@ namespace MixLibAuthentication.Tests
                 $"Method:POST\nHashed Path:{_hashedCanonicalPath}\nX-Ops-Content-Hash:{_hashedBody}\nX-Ops-Timestamp:{_timestampIso8601}\nX-Ops-UserId:{_digestedUserId}";
 
             _v10Request = new SignedHeaderAuth(HttpMethod.Post, _path, _body, null, _userId, _timestampObj);
-            _v11Request = new SignedHeaderAuth(HttpMethod.Post, _path, _body, null, _userId, _timestampObj, "1.1");
 
-           
+            _v11Request = new SignedHeaderAuth(HttpMethod.Post, _path, _body, null, _userId, _timestampObj, "1.1");
         }
 
 
@@ -134,6 +143,7 @@ namespace MixLibAuthentication.Tests
         [TestMethod]
         public void ShouldGenerateTheCorrectStringToSignAndSignatureForVersion11()
         {
+            Assert.AreEqual(_v11Request.ProtoVersion, "1.1");
             Assert.AreEqual(_v11CanonicalRequest, _v11Request.CanonicalizeRequest());
 
             var expectedSignedResults = new Dictionary<string, string>{
@@ -160,7 +170,9 @@ namespace MixLibAuthentication.Tests
         [TestMethod]
         public void ShouldGenerateTheCorrectStringToSignAndSignatureForNonDefaultProtoVersionWhenUsedAsAMixin()
         {
-            Assert.Inconclusive();
+            _v11Request.ProtoVersion = "1.0";
+            Assert.AreEqual(_v11Request.ProtoVersion, "1.0");
+            Assert.AreEqual(_v11CanonicalRequest, _v11Request.CanonicalizeRequest("SHA1", "1.1"));
         }
 
 
@@ -179,22 +191,18 @@ namespace MixLibAuthentication.Tests
 
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ShouldChokeWhenSigningARequestWithABadVersion()
         {
-            Assert.Inconclusive();
+            _v11Request.Sign(_privateKeyData, "SHA1", "poo");
         }
 
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ShouldChokeWhenSigningARequestWithABadAlgorithm()
         {
-            Assert.Inconclusive();
-        }
-
-
-        private bool HeaderEquals(HttpRequestMessage request, string name, string value)
-        {
-            return request.Headers.Any(x => x.Key == name && x.Value.Any() && x.Value.First() == value);
+            _v11Request.Sign(_privateKeyData, "SHA_poo", "1.1");
         }
     }
 }
