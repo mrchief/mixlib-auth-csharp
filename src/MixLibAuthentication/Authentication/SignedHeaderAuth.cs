@@ -14,12 +14,12 @@ namespace MixLibAuthentication.Authentication
 {
     public class SignedHeaderAuth
     {
-        private readonly HttpRequestMessage _request;
         private readonly HttpMethod _method;
         private readonly string _path;
         private readonly string _body;
         private readonly string _host;
         private readonly string _userId;
+        private readonly string _protoVersion;
         private readonly DateTime? _timeStamp;
         private const string DefaultSignAlgorithm = "SHA1";
         private const string DefaultProtoVersion = "1.0";
@@ -48,14 +48,16 @@ namespace MixLibAuthentication.Authentication
         /// <param name="host">The host part of the URI. Not currently used in computation of signature.</param>
         /// <param name="userId">The user or client name. This is used by the server to lookup the public key necessary to verify the signature.</param>
         /// <param name="timeStamp">The timestamp object. The server may reject the request if the timestamp is not close to the server's current time. Defaults to current UTC time.</param>
+        /// <param name="protoVersion">The version of the signing protocol to use. Currently defaults to 1.0, but version 1.1 is also available.</param>
         public SignedHeaderAuth(HttpMethod method, string path, string body, string host, string userId,
-                    DateTime? timeStamp = null)
+                    DateTime? timeStamp = null, string protoVersion = DefaultProtoVersion)
         {
             _method = method;
             _path = path;
             _body = body;
             _host = host;
             _userId = userId;
+            _protoVersion = protoVersion;
             _timeStamp = timeStamp;
         }
 
@@ -69,8 +71,9 @@ namespace MixLibAuthentication.Authentication
         /// <param name="host">The host part of the URI. Not currently used in computation of signature.</param>
         /// <param name="userId">The user or client name. This is used by the server to lookup the public key necessary to verify the signature.</param>
         /// <param name="timeStamp">The timestamp object. The server may reject the request if the timestamp is not close to the server's current time. Defaults to current UTC time.</param>
+        /// <param name="protoVersion">The version of the signing protocol to use. Currently defaults to 1.0, but version 1.1 is also available.</param>
         public SignedHeaderAuth(HttpMethod method, string path, Stream fileStream, string host, string userId,
-                    DateTime? timeStamp = null) : this(method, path, new StreamReader(fileStream).ReadToEnd(), host, userId, timeStamp)
+                    DateTime? timeStamp = null, string protoVersion = DefaultProtoVersion) : this(method, path, new StreamReader(fileStream).ReadToEnd(), host, userId, timeStamp, protoVersion)
         {
 
         }
@@ -82,10 +85,9 @@ namespace MixLibAuthentication.Authentication
         /// </summary>
         /// <param name="privateKey">User's RSA private key.</param>
         /// <param name="signAlgorithm">The version of the signing algorithm to use. Currently only SHA1 is supported.</param>
-        /// <param name="signVersion">The version of the signing protocol to use. Currently defaults to 1.0, but version 1.1 is also available.</param>
+        /// <param name="signVersion">The version of the signing protocol to use.</param>
         /// <returns></returns>
-        public IDictionary<string, string> Sign(string privateKey, string signAlgorithm = DefaultSignAlgorithm,
-                    string signVersion = DefaultProtoVersion)
+        public IDictionary<string, string> Sign(string privateKey, string signAlgorithm, string signVersion)
         {
             var headers = new Dictionary<string, string>
             {
@@ -107,6 +109,16 @@ namespace MixLibAuthentication.Authentication
             }
 
             return headers;
+        }
+
+        public IDictionary<string, string> Sign(string privateKey, string signAlgorithm)
+        {
+            return Sign(privateKey, signAlgorithm, _protoVersion);
+        }
+
+        public IDictionary<string, string> Sign(string privateKey)
+        {
+            return Sign(privateKey, DefaultSignAlgorithm);
         }
 
         private string SignWithPrivateKey(string privateKey, string stringToSign)
@@ -134,16 +146,16 @@ namespace MixLibAuthentication.Authentication
             }
         }
 
-        public string CanonicalizeRequest(string signAlgorithm = DefaultSignAlgorithm,
-            string signVersion = DefaultProtoVersion)
+        public string CanonicalizeRequest(string signAlgorithm = null,
+            string signVersion = null)
         {
-            if (!_supportedAlgorithms.Contains(signAlgorithm))
+            if (signAlgorithm != null && !_supportedAlgorithms.Contains(signAlgorithm))
                 throw new ArgumentOutOfRangeException(signAlgorithm, "Unsupported algorithm");
 
-            if (!_supportedVersions.Contains(signVersion))
+            if (signVersion != null && !_supportedVersions.Contains(signVersion))
                 throw new ArgumentOutOfRangeException(signVersion, "Unsupported version");
 
-            var canonicalXOpsUserId = CanonicalizeUserId(_userId, signVersion);
+            var canonicalXOpsUserId = CanonicalizeUserId(_userId, signVersion ?? _protoVersion);
             
             return
                 $"Method:{_method.ToString().ToUpper()}\nHashed Path:{Digester.HashString(CanonicalPath)}\nX-Ops-Content-Hash:{HashedBody}\nX-Ops-Timestamp:{CanonicalTime}\nX-Ops-UserId:{canonicalXOpsUserId}";
