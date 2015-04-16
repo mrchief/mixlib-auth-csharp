@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>mixlib-authentication</id>
+    <version>1.0.0</version>
+    <title>mixlib-authentication</title>
+    <authors>Hrusikesh Panda</authors>
+    <owners>Hrusikesh Panda</owners>
+    <projectUrl>https://github.com/mrchief/mixlib-auth-csharp</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A C# port of chef's mixlib-authentication</description>
+    <copyright>Copyright 2015</copyright>
+    <tags>mixlib authentication chef</tags>
+    <dependencies>
+        <dependency id="BouncyCastle" version="1.7.0" />
+        <dependency id="Microsoft.Net.Http" version="2.2.29" />
+    </dependencies>
+  </metadata>
+</package>
