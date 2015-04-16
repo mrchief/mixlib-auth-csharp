@@ -22,6 +22,7 @@ namespace MixLibAuthentication.Tests
         string _v10CanonicalRequest;
         string _v11CanonicalRequest;
         private SignedHeaderAuth _v10Request;
+        private SignedHeaderAuth _v11Request;
 
         private readonly string _privateKeyData = "-----BEGIN RSA PRIVATE KEY-----"
                                         + "\n" + "MIIEpAIBAAKCAQEA0ueqo76MXuP6XqZBILFziH/9AI7C6PaN5W0dSvkr9yInyGHS"
@@ -61,6 +62,16 @@ namespace MixLibAuthentication.Tests
             "utju9jzczCyB+sSAQWrxSsXB/b8vV2qs0l4VD2ML+w=="
         };
 
+        private readonly string[] _xOpsAuthorizationLines =
+        {
+            "UfZD9dRz6rFu6LbP5Mo1oNHcWYxpNIcUfFCffJS1FQa0GtfU/vkt3/O5HuCM",
+            "1wIFl/U0f5faH9EWpXWY5NwKR031Myxcabw4t4ZLO69CIh/3qx1XnjcZvt2w",
+            "c2R9bx/43IWA/r8w8Q6decuu0f6ZlNheJeJhaYPI8piX/aH+uHBH8zTACZu8",
+            "vMnl5MF3/OIlsZc8cemq6eKYstp8a8KYq9OmkB5IXIX6qVMJHA6fRvQEB/7j",
+            "281Q7oI/O+lE8AmVyBbwruPb7Mp6s4839eYiOdjbDwFjYtbS3XgAjrHlaD7W",
+            "FDlbAG7H8Dmvo+wBxmtNkszhzbBnEYtuwQqT8nM/8A=="
+        };
+
 
         [TestInitialize]
         public void Setup()
@@ -88,6 +99,7 @@ namespace MixLibAuthentication.Tests
                 $"Method:POST\nHashed Path:{_hashedCanonicalPath}\nX-Ops-Content-Hash:{_hashedBody}\nX-Ops-Timestamp:{_timestampIso8601}\nX-Ops-UserId:{_digestedUserId}";
 
             _v10Request = new SignedHeaderAuth(HttpMethod.Post, _path, _body, null, _userId, _timestampObj);
+            _v11Request = new SignedHeaderAuth(HttpMethod.Post, _path, _body, null, _userId, _timestampObj, "1.1");
 
            
         }
@@ -122,7 +134,26 @@ namespace MixLibAuthentication.Tests
         [TestMethod]
         public void ShouldGenerateTheCorrectStringToSignAndSignatureForVersion11()
         {
-            Assert.Inconclusive();
+            Assert.AreEqual(_v11CanonicalRequest, _v11Request.CanonicalizeRequest());
+
+            var expectedSignedResults = new Dictionary<string, string>{
+                {"X-Ops-Sign", "algorithm=SHA1;version=1.1;"},
+                {"X-Ops-Userid", _userId},
+                {"X-Ops-Timestamp", _timestampIso8601},
+                {"X-Ops-Content-Hash", _hashedBody},
+                {"X-Ops-Authorization-1", _xOpsAuthorizationLines[0] },
+                {"X-Ops-Authorization-2", _xOpsAuthorizationLines[1] },
+                {"X-Ops-Authorization-3", _xOpsAuthorizationLines[2] },
+                {"X-Ops-Authorization-4", _xOpsAuthorizationLines[3] },
+                {"X-Ops-Authorization-5", _xOpsAuthorizationLines[4] },
+                {"X-Ops-Authorization-6", _xOpsAuthorizationLines[5] },
+            };
+            var actual = _v11Request.Sign(_privateKeyData);
+
+            Assert.AreEqual(expectedSignedResults.Keys.Count, actual.Keys.Count);
+
+            Assert.IsTrue(
+                actual.Keys.All(k => expectedSignedResults.ContainsKey(k) && Equals(actual[k], expectedSignedResults[k])));
         }
 
 
