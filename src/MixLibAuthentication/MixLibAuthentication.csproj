@@ -54,6 +54,7 @@
     <Compile Include="Authentication\Digester.cs" />
     <Compile Include="Authentication\SignatureVerification.cs" />
     <Compile Include="Authentication\SignedHeaderAuth.cs" />
+    <Compile Include="HttpRequestMessageExtensions.cs" />
     <Compile Include="MissingAuthenticationHeaderException.cs" />
     <Compile Include="MixLibAuthentication.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
