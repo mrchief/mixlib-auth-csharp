@@ -13,9 +13,9 @@ namespace MixLibAuthentication.Tests
         public void Setup()
         {
             var timestamp_iso8601 = "2009-01-01T12:00:00Z";
-            var x_ops_content_hash = "DFteJZPVv6WKdQmMqZUQUumUyRs=";
+            var x_ops_content_hash = "DFteJZPVv6WKdQmMqZUQUumUyRs=";    // hash of "Spec Body"
             var user_id = "spec-user";
-            var http_x_ops_lines = new[]
+            var httpXOpsLines = new[]
             {
                 "jVHrNniWzpbez/eGWjFnO6lINRIuKOg40ZTIQudcFe47Z9e/HvrszfVXlKG4",
                 "NMzYZgyooSvU85qkIUmKuCqgG2AIlvYa2Q/2ctrMhoaHhLOCWWoqYNMaEqPc",
@@ -25,26 +25,31 @@ namespace MixLibAuthentication.Tests
                 "utju9jzczCyB+sSAQWrxSsXB/b8vV2qs0l4VD2ML+w=="
             };
 
-            var request = new HttpRequestMessage();
-            request.Headers.Add("HTTP_HOST", "127.0.0.1");
+            var request = new HttpRequestMessage(HttpMethod.Post, "http://127.0.0.1/organizations/local-test-org/cookbooks");
+            //request.Headers.Add("HTTP_HOST", "127.0.0.1");
             request.Headers.Add("HTTP_X_OPS_SIGN", "version=1.0");
             request.Headers.Add("HTTP_X_OPS_REQUESTID", "127.0.0.1 1258566194.85386");
             request.Headers.Add("HTTP_X_OPS_TIMESTAMP", timestamp_iso8601);
             request.Headers.Add("HTTP_X_OPS_CONTENT_HASH", x_ops_content_hash);
             request.Headers.Add("HTTP_X_OPS_USERID", user_id);
-            request.Headers.Add("HTTP_X_OPS_AUTHORIZATION_1", http_x_ops_lines[0]);
-            request.Headers.Add("HTTP_X_OPS_AUTHORIZATION_2", http_x_ops_lines[1]);
-            request.Headers.Add("HTTP_X_OPS_AUTHORIZATION_3", http_x_ops_lines[2]);
-            request.Headers.Add("HTTP_X_OPS_AUTHORIZATION_4", http_x_ops_lines[3]);
-            request.Headers.Add("HTTP_X_OPS_AUTHORIZATION_5", http_x_ops_lines[4]);
-            request.Headers.Add("HTTP_X_OPS_AUTHORIZATION_6", http_x_ops_lines[5]);
+            request.Headers.Add("HTTP_X_OPS_AUTHORIZATION_1", httpXOpsLines[0]);
+            request.Headers.Add("HTTP_X_OPS_AUTHORIZATION_2", httpXOpsLines[1]);
+            request.Headers.Add("HTTP_X_OPS_AUTHORIZATION_3", httpXOpsLines[2]);
+            request.Headers.Add("HTTP_X_OPS_AUTHORIZATION_4", httpXOpsLines[3]);
+            request.Headers.Add("HTTP_X_OPS_AUTHORIZATION_5", httpXOpsLines[4]);
+            request.Headers.Add("HTTP_X_OPS_AUTHORIZATION_6", httpXOpsLines[5]);
 
             // Random sampling
             request.Headers.Add("REMOTE_ADDR", "127.0.0.1");
-            request.Headers.Add("PATH_INFO", "/organizations/local-test-org/cookbooks");
-            request.Headers.Add("REQUEST_PATH", "/organizations/local-test-org/cookbooks");
-            request.Headers.Add("CONTENT_TYPE", "multipart/form-data; boundary=----RubyMultipartClient6792ZZZZZ");
-            request.Headers.Add("CONTENT_LENGTH", "394");
+            //request.Headers.Add("PATH_INFO", "/organizations/local-test-org/cookbooks");
+            //request.Headers.Add("REQUEST_PATH", "/organizations/local-test-org/cookbooks");
+            var content = new MultipartFormDataContent("---RubyMultipartClient6792ZZZZZ")
+            {
+                new StringContent("Spec Body")
+            };
+            request.Content = content;
+            //request.Headers.Add("CONTENT_TYPE", "multipart/form-data; boundary=----RubyMultipartClient6792ZZZZZ");
+            //request.Headers.Add("CONTENT_LENGTH", "394");
 
         }
 
