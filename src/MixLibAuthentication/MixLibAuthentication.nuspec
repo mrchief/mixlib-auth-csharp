@@ -9,6 +9,7 @@
     <projectUrl>https://github.com/mrchief/mixlib-auth-csharp</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A C# port of chef's mixlib-authentication</description>
+    <summary>A full C# port of chef's mixlib-authentication. For usage and details, see https://github.com/mrchief/mixlib-auth-csharp/blob/master/README.md</summary>
     <copyright>Copyright 2015</copyright>
     <tags>mixlib authentication chef</tags>
     <dependencies>
