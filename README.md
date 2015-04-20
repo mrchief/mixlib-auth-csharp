@@ -15,33 +15,38 @@ In order to make any call to Chef API, you would need to setup an authorized use
 
 Both the examples assume that you have done the previous setup and have the following info:
 
-    var userId = "authorizedChefUser";
-    var userPrivatePemKey = "some crypto string";
+```csharp
+var userId = "authorizedChefUser";
+var userPrivatePemKey = "some crypto string";
+```
 
 ### Classic Usage (the core library way)
 
-    var request = new HttpRequestMessage(HttpMethod.Get, "http://path/to/chef/server/api/endpoint");
-    // do stuff with HttpRequestMessage
+```csharp
+var request = new HttpRequestMessage(HttpMethod.Get, "http://path/to/chef/server/api/endpoint");
+// do stuff with HttpRequestMessage
 
-	// Sigining before making an API call
-    var auth = new SignedHeaderAuth(request.Method, request.AbsolutePath, "", request.RequestUri.Host, userId);
-	var signedHeaders = auth.Sign(userPrivatePemKey);
-    foreach (var header in signedHeaders)
-    {
-    	request.Headers.Add(header.Key, header.Value);
-    }
+// Sigining before making an API call
+var auth = new SignedHeaderAuth(request.Method, request.AbsolutePath, "", request.RequestUri.Host, userId);
+var signedHeaders = auth.Sign(userPrivatePemKey);
+foreach (var header in signedHeaders)
+{
+	request.Headers.Add(header.Key, header.Value);
+}
 
-    // make the API call
+// make the API call
+```
 
 ### Easy Usage (via the HttpRequestMessage extension)
 
+```csharp
+var request = new HttpRequestMessage(HttpMethod.Get, "http://path/to/chef/server/api/endpoint");
+// do stuff with HttpRequestMessage
 
-    var request = new HttpRequestMessage(HttpMethod.Get, "http://path/to/chef/server/api/endpoint");
-    // do stuff with HttpRequestMessage
+request.SignWithMixLibAuthentication(userId, userPrivatePemKey);
 
-    request.SignWithMixLibAuthentication(userId, userPrivatePemKey);
-
-    // make the API call
+// make the API call
+```
 
 The `HttpRequestMessage` extension also takes care of certain nuances of the `Uri` object (which is responsible for providing `Path`, `Host` parameter) and the `HttpRequestMessage` object such as:
 
