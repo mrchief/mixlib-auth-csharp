@@ -23,6 +23,9 @@ namespace MixLibAuthentication
 
         private static string SafeGetRequestBody(HttpRequestMessage request)
         {
+            if (request.Method == HttpMethod.Get || request.Content == null)
+                return "";
+
             // Reading request.Content.ReadAsStringAsync().Result directly will cause the request body to become empty in WebApi
             // Reassign the content after reading to bypass this WebAPi stupidity.
             var contentType = request.Content.Headers.ContentType;
