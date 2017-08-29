@@ -150,7 +150,7 @@ namespace MixLibAuthentication.Tests
             Assert.AreEqual(_v11CanonicalRequest, _v11Request.CanonicalizeRequest());
 
             var expectedSignedResults = new Dictionary<string, string>{
-                {"X-Ops-Sign", "algorithm=SHA1;version=1.1;"},
+                {"X-Ops-Sign", "version=1.1;"},
                 {"X-Ops-Userid", _userId},
                 {"X-Chef-Version", _clientVersion},
                 {"X-Ops-Timestamp", _timestampIso8601},
@@ -176,7 +176,7 @@ namespace MixLibAuthentication.Tests
         {
             _v11Request.ProtoVersion = "1.0";
             Assert.AreEqual(_v11Request.ProtoVersion, "1.0");
-            Assert.AreEqual(_v11CanonicalRequest, _v11Request.CanonicalizeRequest("SHA2", "1.1"));
+            Assert.AreEqual(_v11CanonicalRequest, _v11Request.CanonicalizeRequest("sha1", "1.1"));
         }
 
 
