@@ -20,7 +20,7 @@ namespace MixLibAuthentication.Authentication
         private readonly string _host;
         private readonly string _userId;
         private readonly DateTime? _timeStamp;
-        private const string DefaultSignAlgorithm = "SHA1";
+        private const string DefaultSignAlgorithm = "SHA2";
         private const string DefaultProtoVersion = "1.0";
         private readonly string[] _supportedAlgorithms = { DefaultSignAlgorithm };
         private readonly string[] _supportedVersions = { DefaultProtoVersion, "1.1" };
