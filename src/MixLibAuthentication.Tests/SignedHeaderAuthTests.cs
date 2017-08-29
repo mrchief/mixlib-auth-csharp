@@ -88,6 +88,8 @@ namespace MixLibAuthentication.Tests
         {
             _userId = "spec-user";
 
+            _clientVersion = "12.5.1";
+
             _digestedUserId = Digester.HashString(_userId);
 
             _body = "Spec Body";
@@ -122,6 +124,7 @@ namespace MixLibAuthentication.Tests
             var expectedSignedResults = new Dictionary<string, string>{
                 {"X-Ops-Sign", "algorithm=SHA1;version=1.0;"},
                 {"X-Ops-Userid", _userId},
+                {"X-Chef-Version", _clientVersion},
                 {"X-Ops-Timestamp", _timestampIso8601},
                 {"X-Ops-Content-Hash", _hashedBody},
                 {"X-Ops-Authorization-1", _xOpsAuthorizationLinesV10[0] },
@@ -149,6 +152,7 @@ namespace MixLibAuthentication.Tests
             var expectedSignedResults = new Dictionary<string, string>{
                 {"X-Ops-Sign", "algorithm=SHA1;version=1.1;"},
                 {"X-Ops-Userid", _userId},
+                {"X-Chef-Version", _clientVersion},
                 {"X-Ops-Timestamp", _timestampIso8601},
                 {"X-Ops-Content-Hash", _hashedBody},
                 {"X-Ops-Authorization-1", _xOpsAuthorizationLines[0] },
@@ -172,7 +176,7 @@ namespace MixLibAuthentication.Tests
         {
             _v11Request.ProtoVersion = "1.0";
             Assert.AreEqual(_v11Request.ProtoVersion, "1.0");
-            Assert.AreEqual(_v11CanonicalRequest, _v11Request.CanonicalizeRequest("SHA1", "1.1"));
+            Assert.AreEqual(_v11CanonicalRequest, _v11Request.CanonicalizeRequest("SHA2", "1.1"));
         }
 
 
