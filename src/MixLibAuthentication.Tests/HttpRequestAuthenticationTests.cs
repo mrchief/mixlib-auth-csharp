@@ -15,7 +15,7 @@ namespace MixLibAuthentication.Tests
             var timestamp_iso8601 = "2009-01-01T12:00:00Z";
             var x_ops_content_hash = "DFteJZPVv6WKdQmMqZUQUumUyRs=";    // hash of "Spec Body"
             var user_id = "spec-user";
-            var client_version = "12.5.1"
+            var client_version = "12.5.1";
             var httpXOpsLines = new[]
             {
                 "jVHrNniWzpbez/eGWjFnO6lINRIuKOg40ZTIQudcFe47Z9e/HvrszfVXlKG4",

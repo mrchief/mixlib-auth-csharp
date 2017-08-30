@@ -18,6 +18,7 @@ namespace MixLibAuthentication.Tests
         DateTime _timestampObj;
         string _path;
         string _hashedCanonicalPath;
+        string _clientVersion;
         string _v10CanonicalRequest;
         string _v11CanonicalRequest;
         private SignedHeaderAuth _v10Request;
@@ -80,7 +81,7 @@ namespace MixLibAuthentication.Tests
             "vMnl5MF3/OIlsZc8cemq6eKYstp8a8KYq9OmkB5IXIX6qVMJHA6fRvQEB/7j",
             "281Q7oI/O+lE8AmVyBbwruPb7Mp6s4839eYiOdjbDwFjYtbS3XgAjrHlaD7W",
             "FDlbAG7H8Dmvo+wBxmtNkszhzbBnEYtuwQqT8nM/8A=="
-        };
+        };        
 
 
         [TestInitialize]
