@@ -20,8 +20,10 @@ namespace MixLibAuthentication.Authentication
         private readonly string _host;
         private readonly string _userId;
         private readonly DateTime? _timeStamp;
-        private const string DefaultSignAlgorithm = "SHA1";
+        private readonly string _clientVersion;
+        private const string DefaultSignAlgorithm = "sha1";
         private const string DefaultProtoVersion = "1.0";
+        private const string DefaultClientVersion = "12.5.1";
         private readonly string[] _supportedAlgorithms = { DefaultSignAlgorithm };
         private readonly string[] _supportedVersions = { DefaultProtoVersion, "1.1" };
 
@@ -50,8 +52,9 @@ namespace MixLibAuthentication.Authentication
         /// <param name="userId">The user or client name. This is used by the server to lookup the public key necessary to verify the signature.</param>
         /// <param name="timeStamp">The timestamp object. The server may reject the request if the timestamp is not close to the server's current time. Defaults to current UTC time.</param>
         /// <param name="protoVersion">The version of the signing protocol to use. Currently defaults to 1.0, but version 1.1 is also available.</param>
+        /// <param name="clientVersion">Blah blah blah</param>
         public SignedHeaderAuth(HttpMethod method, string path, string body, string host, string userId,
-                    DateTime? timeStamp = null, string protoVersion = DefaultProtoVersion)
+                    DateTime? timeStamp = null, string protoVersion = DefaultProtoVersion, string clientVersion = DefaultClientVersion)
         {
             _method = method;
             _path = path;
@@ -59,22 +62,24 @@ namespace MixLibAuthentication.Authentication
             _host = host;
             _userId = userId;
             ProtoVersion = protoVersion;
+            _clientVersion = clientVersion;
             _timeStamp = timeStamp;
         }
 
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SignedHeaderAuth" /> class.
-        /// </summary>
-        /// <param name="method">The HTTP method. e.g., get | put | post | delete</param>
-        /// <param name="path">The path part of the URI.</param>
-        /// <param name="fileStream">A file stream to be used as request body.</param>
-        /// <param name="host">The host part of the URI. Not currently used in computation of signature.</param>
-        /// <param name="userId">The user or client name. This is used by the server to lookup the public key necessary to verify the signature.</param>
-        /// <param name="timeStamp">The timestamp object. The server may reject the request if the timestamp is not close to the server's current time. Defaults to current UTC time.</param>
-        /// <param name="protoVersion">The version of the signing protocol to use. Currently defaults to 1.0, but version 1.1 is also available.</param>
-        public SignedHeaderAuth(HttpMethod method, string path, Stream fileStream, string host, string userId,
-                    DateTime? timeStamp = null, string protoVersion = DefaultProtoVersion) : this(method, path, new StreamReader(fileStream).ReadToEnd(), host, userId, timeStamp, protoVersion)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="SignedHeaderAuth" /> class.
+		/// </summary>
+		/// <param name="method">The HTTP method. e.g., get | put | post | delete</param>
+		/// <param name="path">The path part of the URI.</param>
+		/// <param name="fileStream">A file stream to be used as request body.</param>
+		/// <param name="host">The host part of the URI. Not currently used in computation of signature.</param>
+		/// <param name="userId">The user or client name. This is used by the server to lookup the public key necessary to verify the signature.</param>
+		/// <param name="timeStamp">The timestamp object. The server may reject the request if the timestamp is not close to the server's current time. Defaults to current UTC time.</param>
+		/// <param name="protoVersion">The version of the signing protocol to use. Currently defaults to 1.0, but version 1.1 is also available.</param>
+		/// <param name="clientVersion">Blah blah blah</param>
+		public SignedHeaderAuth(HttpMethod method, string path, Stream fileStream, string host, string userId,
+                    DateTime? timeStamp = null, string protoVersion = DefaultProtoVersion, string clientVersion = DefaultClientVersion) : this(method, path, new StreamReader(fileStream).ReadToEnd(), host, userId, timeStamp, protoVersion, clientVersion)
         {
 
         }
@@ -90,12 +95,15 @@ namespace MixLibAuthentication.Authentication
         /// <returns></returns>
         public IDictionary<string, string> Sign(string privateKey, string signAlgorithm, string signVersion)
         {
+
             var headers = new Dictionary<string, string>
             {
                 {"X-Ops-Sign", $"algorithm={signAlgorithm};version={signVersion};"},
                 {"X-Ops-Userid", _userId},
                 {"X-Ops-Timestamp", CanonicalTime},
-                {"X-Ops-Content-Hash", HashedBody}
+                {"X-Ops-Content-Hash", HashedBody},
+                {"X-Chef-Version", _clientVersion}
+                                                  
             };
 
             var stringToSign = CanonicalizeRequest(signAlgorithm, signVersion);

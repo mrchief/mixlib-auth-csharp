@@ -15,6 +15,7 @@ namespace MixLibAuthentication.Tests
             var timestamp_iso8601 = "2009-01-01T12:00:00Z";
             var x_ops_content_hash = "DFteJZPVv6WKdQmMqZUQUumUyRs=";    // hash of "Spec Body"
             var user_id = "spec-user";
+            var client_version = "12.5.1"
             var httpXOpsLines = new[]
             {
                 "jVHrNniWzpbez/eGWjFnO6lINRIuKOg40ZTIQudcFe47Z9e/HvrszfVXlKG4",
@@ -32,6 +33,7 @@ namespace MixLibAuthentication.Tests
             request.Headers.Add("HTTP_X_OPS_TIMESTAMP", timestamp_iso8601);
             request.Headers.Add("HTTP_X_OPS_CONTENT_HASH", x_ops_content_hash);
             request.Headers.Add("HTTP_X_OPS_USERID", user_id);
+            request.Headers.Add("HTTP_X_CHEF-VERSION", client_version);
             request.Headers.Add("HTTP_X_OPS_AUTHORIZATION_1", httpXOpsLines[0]);
             request.Headers.Add("HTTP_X_OPS_AUTHORIZATION_2", httpXOpsLines[1]);
             request.Headers.Add("HTTP_X_OPS_AUTHORIZATION_3", httpXOpsLines[2]);
